@@ -34,6 +34,7 @@
 supabase/migrations/
   202609300001_search_schema.sql
   202609300002_search_functions.sql
+  202609300003_listing_search.sql
 scripts/
   import-data.sh
 backend/
@@ -96,13 +97,13 @@ supabase/functions/embed/index.ts
 
 **Produces:** A database function returning ranked, paginated exact or fuzzy results.
 
-- [ ] Write SQL integration tests for an exact model, a misspelling, `Ford F150`, special characters, and page stability.
-- [ ] Add `search_vehicle_listings(query_text, page_number, page_size)` to `supabase/migrations/202609300002_search_functions.sql`.
-- [ ] Rank exact results with weighted `ts_rank_cd`; give make and model the highest weight.
-- [ ] When exact search returns zero rows, rank fuzzy candidates using trigram similarity and partial text score.
-- [ ] Preserve a recognized make as a filter or strong boost during fuzzy fallback.
-- [ ] Return `match_type`, normalized `score`, `has_next`, and elapsed query data.
-- [ ] Verify representative queries with `EXPLAIN ANALYZE` and commit.
+- [x] Write SQL integration tests for an exact model, a misspelling, `Ford F150`, special characters, and page stability.
+- [x] Add `search_vehicle_listings(query_text, page_number, page_size)` to `supabase/migrations/202609300003_listing_search.sql`.
+- [x] Rank exact results with weighted `ts_rank_cd`; give make and model the highest weight.
+- [x] When exact search returns zero rows, rank fuzzy candidates using trigram similarity and partial text score.
+- [x] Preserve a recognized make as a filter or strong boost during fuzzy fallback.
+- [x] Return `match_type`, normalized `score`, `has_next`, and elapsed query data.
+- [x] Verify representative queries with `EXPLAIN ANALYZE` and commit.
 
 ### Task 5: Add semantic vehicle-profile fallback
 
