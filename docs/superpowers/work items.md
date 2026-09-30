@@ -61,7 +61,7 @@ supabase/functions/embed/index.ts
 
 ## Work Items
 
-### 1. Create the runnable project skeleton
+### Task 1: Create the runnable project skeleton
 
 **Produces:** A Spring Boot health endpoint and a React page that both start locally.
 
@@ -71,7 +71,7 @@ supabase/functions/embed/index.ts
 - [ ] Create the Vite React project and a basic component-render test.
 - [ ] Run backend and frontend test commands and commit the skeleton.
 
-### 2. Create the database and import the dataset
+### Task 2: Create the database and import the dataset
 
 **Produces:** A repeatable import that loads the Kaggle CSV into `vehicle_listings`.
 
@@ -82,7 +82,7 @@ supabase/functions/embed/index.ts
 - [ ] Make the import transactional: activate data and increment `datasetVersion` only after validation succeeds.
 - [ ] Run row-count and sample-data checks, rerun the import to prove it is repeatable, and commit.
 
-### 3. Build suggestions
+### Task 3: Build suggestions
 
 **Produces:** Indexed prefix and typo-tolerant suggestions for makes, models, trims, and common combinations.
 
@@ -92,7 +92,7 @@ supabase/functions/embed/index.ts
 - [ ] Verify the query uses the prefix or trigram index with `EXPLAIN ANALYZE`.
 - [ ] Commit suggestion generation and search.
 
-### 4. Implement exact and fuzzy ranking
+### Task 4: Implement exact and fuzzy ranking
 
 **Produces:** A database function returning ranked, paginated exact or fuzzy results.
 
@@ -104,7 +104,7 @@ supabase/functions/embed/index.ts
 - [ ] Return `match_type`, normalized `score`, `has_next`, and elapsed query data.
 - [ ] Verify representative queries with `EXPLAIN ANALYZE` and commit.
 
-### 5. Add semantic vehicle-profile fallback
+### Task 5: Add semantic vehicle-profile fallback
 
 **Produces:** Natural-language queries and unavailable models return related vehicle listings.
 
@@ -116,7 +116,7 @@ supabase/functions/embed/index.ts
 - [ ] Invoke semantic search when exact search returns zero and fuzzy search returns fewer than 100 results; fall back to fuzzy-only results on errors.
 - [ ] Verify `EXACT`, `FUZZY`, and `SEMANTIC` ordering and commit.
 
-### 6. Build the Spring search API and cache behavior
+### Task 6: Build the Spring search API and cache behavior
 
 **Produces:** Validated `/api/search` and `/api/suggestions` endpoints.
 
@@ -129,7 +129,7 @@ supabase/functions/embed/index.ts
 - [ ] Include the observed `datasetVersion` in every cache key so older entries cannot be reused after import.
 - [ ] Test cache hits, TTL configuration, version changes, eviction, and failed-import behavior; then commit.
 
-### 7. Build debounced search suggestions in React
+### Task 7: Build debounced search suggestions in React
 
 **Produces:** A keyboard-accessible search box with fast suggestions.
 
@@ -140,7 +140,7 @@ supabase/functions/embed/index.ts
 - [ ] Implement `SearchBox` with loading, empty, error, keyboard, and submit behavior.
 - [ ] Run frontend tests and commit.
 
-### 8. Build results, ranking labels, and pagination
+### Task 8: Build results, ranking labels, and pagination
 
 **Produces:** A responsive result list that explains exact, fuzzy, and semantic matches.
 
@@ -151,7 +151,7 @@ supabase/functions/embed/index.ts
 - [ ] Add simple responsive styling and run accessibility checks for labels, focus, and keyboard use.
 - [ ] Run frontend tests and commit.
 
-### 9. Verify performance and prepare the demo
+### Task 9: Verify performance and prepare the demo
 
 **Produces:** Evidence that the application meets the functional and latency requirements.
 

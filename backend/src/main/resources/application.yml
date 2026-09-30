@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: vehicle-search
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/vehicle_search}
+    username: ${DATABASE_USER:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    hikari:
+      initialization-fail-timeout: -1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
