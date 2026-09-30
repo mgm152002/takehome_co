@@ -65,6 +65,8 @@ begin
 end
 $$;
 
+select public.refresh_suggestion_terms();
+
 update public.dataset_metadata
 set version = version + 1,
     row_count = (select count(*) from public.vehicle_listings),

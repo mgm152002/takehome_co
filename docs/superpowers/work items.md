@@ -86,11 +86,11 @@ supabase/functions/embed/index.ts
 
 **Produces:** Indexed prefix and typo-tolerant suggestions for makes, models, trims, and common combinations.
 
-- [ ] Write SQL tests for `bm`, `toyota`, `Toyta`, blank input, and an eight-result limit.
-- [ ] Populate `suggestion_terms` from normalized listing values with a frequency count.
-- [ ] Implement `search_suggestions(query_text, result_limit)` using prefix matching first and trigram similarity second.
-- [ ] Verify the query uses the prefix or trigram index with `EXPLAIN ANALYZE`.
-- [ ] Commit suggestion generation and search.
+- [x] Write SQL tests for `bm`, `toyota`, `Toyta`, blank input, and an eight-result limit.
+- [x] Populate `suggestion_terms` from normalized listing values with a frequency count.
+- [x] Implement `search_suggestions(query_text, result_limit)` using prefix matching first and trigram similarity second.
+- [x] Verify the query uses the prefix or trigram index with `EXPLAIN ANALYZE`.
+- [x] Commit suggestion generation and search.
 
 ### Task 4: Implement exact and fuzzy ranking
 
