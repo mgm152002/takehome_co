@@ -17,3 +17,4 @@
 
 - Maven uses Java 21 bytecode and was verified on the installed Java 27 runtime.
 - `.npmrc` enables legacy peer resolution because npm 11 failed while resolving Vitest's optional peer dependencies.
+- jsdom is pinned to 26.1 to avoid an intermittent CommonJS/ESM loader conflict in jsdom 28's dependency chain.
