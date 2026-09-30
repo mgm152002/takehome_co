@@ -31,9 +31,9 @@
 ## Planned Files
 
 ```text
-database/
-  001_schema.sql
-  002_search_functions.sql
+supabase/migrations/
+  202609300001_search_schema.sql
+  202609300002_search_functions.sql
 scripts/
   import-data.sh
 backend/
@@ -65,22 +65,22 @@ supabase/functions/embed/index.ts
 
 **Produces:** A Spring Boot health endpoint and a React page that both start locally.
 
-- [ ] Initialize Git and add a root `.gitignore` and short setup `README.md`.
-- [ ] Create the Spring Boot project with Web, Validation, JDBC, PostgreSQL, Cache, and Caffeine dependencies.
-- [ ] Write a context-load test, run it failing, then add `SearchApplication` and make it pass.
-- [ ] Create the Vite React project and a basic component-render test.
-- [ ] Run backend and frontend test commands and commit the skeleton.
+- [x] Initialize Git and add a root `.gitignore` and short setup `README.md`.
+- [x] Create the Spring Boot project with Web, Validation, JDBC, PostgreSQL, Cache, and Caffeine dependencies.
+- [x] Write a context-load test, run it failing, then add `SearchApplication` and make it pass.
+- [x] Create the Vite React project and a basic component-render test.
+- [x] Run backend and frontend test commands and commit the skeleton.
 
 ### Task 2: Create the database and import the dataset
 
 **Produces:** A repeatable import that loads the Kaggle CSV into `vehicle_listings`.
 
-- [ ] Write schema checks for required columns, extensions, generated search fields, and indexes.
-- [ ] Add `database/001_schema.sql` with `pg_trgm`, `vector`, `vehicle_listings`, `vehicle_profiles`, `suggestion_terms`, and `dataset_metadata`.
-- [ ] Add GIN full-text, trigram, make/model, profile, and vector indexes.
-- [ ] Write `scripts/import-data.sh` to validate the CSV header, load through a staging table, normalize values, and reject invalid rows.
-- [ ] Make the import transactional: activate data and increment `datasetVersion` only after validation succeeds.
-- [ ] Run row-count and sample-data checks, rerun the import to prove it is repeatable, and commit.
+- [x] Write schema checks for required columns, extensions, generated search fields, and indexes.
+- [x] Add `supabase/migrations/202609300001_search_schema.sql` with `pg_trgm`, `vector`, `vehicle_listings`, `vehicle_profiles`, `suggestion_terms`, and `dataset_metadata`.
+- [x] Add GIN full-text, trigram, make/model, profile, and vector indexes.
+- [x] Write `scripts/import-data.sh` to validate the CSV header, load through a staging table, normalize values, and reject invalid rows.
+- [x] Make the import transactional: activate data and increment `datasetVersion` only after validation succeeds.
+- [x] Run row-count and sample-data checks, rerun the import to prove it is repeatable, and commit.
 
 ### Task 3: Build suggestions
 
@@ -97,7 +97,7 @@ supabase/functions/embed/index.ts
 **Produces:** A database function returning ranked, paginated exact or fuzzy results.
 
 - [ ] Write SQL integration tests for an exact model, a misspelling, `Ford F150`, special characters, and page stability.
-- [ ] Add `search_vehicle_listings(query_text, page_number, page_size)` to `database/002_search_functions.sql`.
+- [ ] Add `search_vehicle_listings(query_text, page_number, page_size)` to `supabase/migrations/202609300002_search_functions.sql`.
 - [ ] Rank exact results with weighted `ts_rank_cd`; give make and model the highest weight.
 - [ ] When exact search returns zero rows, rank fuzzy candidates using trigram similarity and partial text score.
 - [ ] Preserve a recognized make as a filter or strong boost during fuzzy fallback.
