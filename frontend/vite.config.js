@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8080',
+        target: 'http://vehicle-search-env.eba-u22cf7md.us-east-1.elasticbeanstalk.com',
         changeOrigin: true
       }
     }

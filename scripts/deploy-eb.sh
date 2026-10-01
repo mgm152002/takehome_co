@@ -16,7 +16,7 @@ set -a; . "$REPO/.env"; set +a
 
 APP="copart-vehicle-search"
 ENVNAME="vehicle-search-env"
-REGION="ap-south-1"
+REGION="us-east-1"
 
 echo "==> 1/4 Building the fat JAR (tests skipped)"
 mvn -q -DskipTests -Dmaven.repo.local=/private/tmp/copart-m2 clean package
@@ -28,8 +28,8 @@ aws elasticbeanstalk describe-applications --application-names "$APP" --region "
 
 # Derive JDBC datasource from the libpq DATABASE_URL in .env (Supabase gives postgres://...).
 # Spring needs jdbc:postgresql://host:port/db + separate user/password.
-JDBC_URL="jdbc:postgresql://db.vpmaxubiboaflgtvmimc.supabase.co:5432/postgres"
-DB_USER="postgres"
+JDBC_URL="jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+DB_USER="postgres.vpmaxubiboaflgtvmimc"
 # password = between 'postgres:' and '@'
 DB_PASS="${DATABASE_URL#*://postgres:}"; DB_PASS="${DB_PASS%%@*}"
 
