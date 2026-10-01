@@ -16,6 +16,7 @@ printf '%s\n' \
 printf '%s\n' 'year,make,wrong_column' '2015,BMW,M3' > "$invalid_csv"
 
 "$project_dir/scripts/import-data.sh" --validate-only "$valid_csv"
+"$project_dir/scripts/import-data.sh" --validate-only --limit 100000 "$valid_csv"
 
 if "$project_dir/scripts/import-data.sh" --validate-only "$invalid_csv"; then
   echo "expected invalid header to be rejected" >&2

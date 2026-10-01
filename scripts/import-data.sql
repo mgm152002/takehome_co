@@ -55,7 +55,19 @@ from staging_vehicle_listings
 where trim(make) <> ''
   and trim(model) <> ''
   and trim(year) ~ '^[0-9]{4}$'
-  and trim(year)::integer between 1885 and 2100;
+  and trim(year)::integer between 1885 and 2100
+-- Cap the working set at 100k rows to reduce load on the database.
+-- Deterministic ordering keeps the cap repeatable across re-imports:
+-- newest sale dates first, then most recent staging rows.
+order by
+    case
+        when trim(saledate) ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}' then trim(saledate)::timestamptz
+        when trim(saledate) ~ '^[A-Za-z]{3} [A-Za-z]{3} [0-9]{2} [0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}'
+            then to_timestamp(substring(trim(saledate) from 5 for 20), 'Mon DD YYYY HH24:MI:SS')
+        else null
+    end desc nulls last,
+    ctid desc
+limit 100000;
 
 do $$
 begin
@@ -66,6 +78,7 @@ end
 $$;
 
 select public.refresh_suggestion_terms();
+select public.refresh_vehicle_profiles();
 
 update public.dataset_metadata
 set version = version + 1,

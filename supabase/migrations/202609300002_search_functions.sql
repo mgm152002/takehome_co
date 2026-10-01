@@ -55,7 +55,12 @@ begin
         from public.vehicle_listings
         group by lower(make || ' ' || model)
     ) terms
-    where normalized_term <> '';
+    where normalized_term <> ''
+      -- Keep every MAKE (primary suggestion anchors, ~50 rows); for MODEL/TRIM/
+      -- COMBINATION drop the long tail of rare/typo terms that never surface in
+      -- the top-8 suggestions. Keeps suggestion_terms bounded (<2k on the 100k
+      -- dataset) so prefix/trigram lookups stay fast. See docs/work-items/11.
+      and (term_type = 'MAKE' or frequency >= 5);
 
     get diagnostics refreshed_count = row_count;
     return refreshed_count;

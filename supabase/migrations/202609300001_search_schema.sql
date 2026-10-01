@@ -40,11 +40,7 @@ create table if not exists public.vehicle_listings (
         setweight(to_tsvector('simple', coalesce(make, '')), 'A') ||
         setweight(to_tsvector('simple', coalesce(model, '')), 'A') ||
         setweight(to_tsvector('simple', coalesce(trim, '')), 'B') ||
-        setweight(to_tsvector('simple', coalesce(body, '')), 'B') ||
-        setweight(to_tsvector('simple', coalesce(transmission, '')), 'C') ||
-        setweight(to_tsvector('simple', coalesce(color, '')), 'C') ||
-        setweight(to_tsvector('simple', coalesce(state, '')), 'C') ||
-        setweight(to_tsvector('simple', coalesce(seller, '')), 'D')
+        setweight(to_tsvector('simple', coalesce(body, '')), 'B')
     ) stored,
     normalized_title text generated always as (
         lower(trim(

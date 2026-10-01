@@ -51,3 +51,20 @@ psql "$DATABASE_URL" \
   --set ON_ERROR_STOP=1 \
   --file "$project_dir/scripts/import-data.sql" \
   < "$csv_path"
+
+echo "Rebuilding indexes and refreshing planner statistics on the reduced dataset..."
+psql "$DATABASE_URL" --set ON_ERROR_STOP=1 <<'SQL'
+set statement_timeout = '15min';
+reindex table public.vehicle_listings;
+reindex table public.vehicle_profiles;
+reindex table public.suggestion_terms;
+analyze public.vehicle_listings;
+analyze public.vehicle_profiles;
+analyze public.suggestion_terms;
+SQL
+
+if [[ -n "${SUPABASE_URL:-}" && -n "${SUPABASE_PUBLISHABLE_KEY:-}" ]]; then
+  "$project_dir/scripts/embed-profiles.sh"
+else
+  echo "Profile embeddings skipped; set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to backfill them"
+fi

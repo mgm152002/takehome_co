@@ -32,32 +32,68 @@ set search_path = public, extensions
 as $$
     with params as materialized (
         select
-            lower(trim(coalesce(query_text, ''))) as query,
+            lower(trim(coalesce(query_text, ''))) as raw_query,
             greatest(coalesce(page_number, 0), 0) as requested_page,
             least(greatest(coalesce(page_size, 100), 1), 100) as requested_size,
             clock_timestamp() as started_at
     ),
+    -- Make-nickname aliases: a bare "chevy" means the make Chevrolet, not "a car
+    -- sold by a shop named Chevy" (seller is in search_vector, so without this
+    -- "chevy" full-text-matched a 'chevy auto body' seller and returned Toyotas).
+    -- Rewrite whole-word nicknames to the canonical make before recognition and
+    -- full-text. Extend this list as needed.
+    make_aliases (alias, canonical) as (
+        values
+            ('chevy', 'chevrolet'),
+            ('vw', 'volkswagen'),
+            ('mercedes', 'mercedes-benz'),
+            ('merc', 'mercedes-benz'),
+            ('beemer', 'bmw'),
+            ('bimmer', 'bmw'),
+            ('vette', 'corvette'),
+            ('caddy', 'cadillac')
+    ),
+    normalized as materialized (
+        -- Apply each alias substitution in turn (small fixed list; a lateral
+        -- fold keeps it readable). Produces the query used everywhere downstream.
+        select
+            params.requested_page,
+            params.requested_size,
+            params.started_at,
+            (
+                select coalesce(
+                    nullif(trim(string_agg(
+                        case
+                            when ma.canonical is not null then ma.canonical
+                            else tok
+                        end, ' ' order by ord)), ''),
+                    params.raw_query)
+                from regexp_split_to_table(params.raw_query, '\s+') with ordinality as t(tok, ord)
+                left join make_aliases ma on ma.alias = t.tok
+            ) as query
+        from params
+    ),
     query_info as materialized (
         select
-            params.*,
-            websearch_to_tsquery('simple', params.query)
+            normalized.*,
+            websearch_to_tsquery('simple', normalized.query)
                 || websearch_to_tsquery(
                     'simple',
                     regexp_replace(
-                        regexp_replace(params.query, '([[:alpha:]])([[:digit:]])', '\1 \2', 'g'),
+                        regexp_replace(normalized.query, '([[:alpha:]])([[:digit:]])', '\1 \2', 'g'),
                         '([[:digit:]])([[:alpha:]])',
                         '\1 \2',
                         'g'
                     )
                 ) as text_query
-        from params
+        from normalized
     ),
     recognized_make as materialized (
         select terms.normalized_term
         from public.suggestion_terms terms
         cross join query_info
         where terms.term_type = 'MAKE'
-          and (' ' || regexp_replace(query_info.query, '[^a-z0-9]+', ' ', 'g') || ' ')
+          and (' ' || regexp_replace(query_info.query, '[^a-z0-9-]+', ' ', 'g') || ' ')
               like '% ' || terms.normalized_term || ' %'
         order by length(terms.normalized_term) desc
         limit 1
@@ -82,6 +118,15 @@ as $$
         cross join query_info
         where length(query_info.query) >= 2
           and listings.search_vector @@ query_info.text_query
+          -- When the query names a known make, the EXACT tier is restricted to
+          -- that make: a query like "porsche gt" must never return a Hyundai
+          -- just because some other listing's trim contains "gt". If the make
+          -- has no full-text match, exact yields nothing and the search falls
+          -- through to the fuzzy/semantic tiers (as intended by the design).
+          and (
+            not exists (select 1 from recognized_make)
+            or lower(listings.make) = (select normalized_term from recognized_make)
+          )
         order by score desc, listings.id
         limit 500
     ),
@@ -116,18 +161,26 @@ as $$
                 'FUZZY'::text as match_type,
                 least(
                     1.0,
-                    extensions.similarity(listings.normalized_title, query_info.query)::double precision * 0.65
-                    + extensions.word_similarity(
-                        query_info.query,
-                        listings.normalized_title
-                      )::double precision * 0.35
+                    -- word_similarity compares the query against the BEST-matching
+                    -- word in the title, so a single-word typo (camri→camry,
+                    -- accrd→accord) scores on the word it resembles instead of
+                    -- being diluted by the whole "2011 toyota camry se sedan".
+                    extensions.word_similarity(query_info.query, listings.normalized_title)::double precision * 0.75
+                    + extensions.similarity(listings.normalized_title, query_info.query)::double precision * 0.25
                 )::real as score
             from public.vehicle_listings listings
             cross join query_info
             where not exists (select 1 from exact_ranked)
               and not exists (select 1 from recognized_make)
               and length(query_info.query) >= 2
-              and listings.normalized_title OPERATOR(extensions.%) query_info.query
+              -- `<%` ("query similar to some WORD in the title") is accelerated
+              -- by the GIN gin_trgm_ops index on normalized_title, so this stays
+              -- fast. It recovers most single-word typos (camri→camry,
+              -- corola→corolla, sivic→civic). Its cutoff is the DB-global
+              -- word_similarity_threshold (0.6), which Supabase does not let us
+              -- lower per-function; the very hardest typos (accrd→accord, ~0.5)
+              -- fall to the semantic tier instead.
+              and query_info.query OPERATOR(extensions.<%) listings.normalized_title
         ) candidates
         order by candidates.score desc, candidates.id
         limit 500
