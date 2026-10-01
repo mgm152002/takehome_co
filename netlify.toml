@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://vehicle-search-env.eba-u22cf7md.us-east-1.elasticbeanstalk.com/api/:splat"
+  status = 200
+  force = true
