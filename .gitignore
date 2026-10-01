@@ -5,6 +5,13 @@
 .env.*
 !.env.example
 .superpowers/
+.kiro/
+.kilo/
+.deploy-tmp/
+.deploy/
+docs/
+backend/.elasticbeanstalk/
+supabase/.temp/
 
 backend/target/
 frontend/node_modules/
