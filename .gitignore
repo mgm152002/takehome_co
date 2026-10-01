@@ -9,7 +9,7 @@
 .kilo/
 .deploy-tmp/
 .deploy/
-docs/
+/docs/
 backend/.elasticbeanstalk/
 supabase/.temp/
 
